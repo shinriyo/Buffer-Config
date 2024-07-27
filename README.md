@@ -47,7 +47,7 @@ Buffer Config/
 │   │                   ├── messages_zh_TW.properties
 │   │                   ├── messages_ko.properties
 │   │                   └── messages_vi.properties
-
+```
 
 ## how to build
 
