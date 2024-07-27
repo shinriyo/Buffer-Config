@@ -9,10 +9,8 @@ class BufferConfigSettings : Configurable {
     private var panel: JPanel? = null
     private var bufferSizeComboBox: JComboBox<String>? = null
     private var customBufferSizeField: JTextField? = null
-    private var customBufferSizePanel: JPanel? = null
     private var presetRadioButton: JRadioButton? = null
     private var customRadioButton: JRadioButton? = null
-    private var radioButtonPanel: JPanel? = null
 
     private val bufferSizes = arrayOf("1 MB", "2 MB", "5 MB", "10 MB", "20 MB")
 
@@ -22,27 +20,30 @@ class BufferConfigSettings : Configurable {
 
     override fun createComponent(): JComponent? {
         panel = JPanel()
+        panel?.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+
+        val presetPanel = JPanel(FlowLayout(FlowLayout.LEFT))
+        val customPanel = JPanel(FlowLayout(FlowLayout.LEFT))
+
         bufferSizeComboBox = JComboBox(bufferSizes)
         customBufferSizeField = JTextField(10)
-        customBufferSizePanel = JPanel(FlowLayout(FlowLayout.LEFT))
+
         presetRadioButton = JRadioButton(BufferConfigBundle.message("preset"), true)
         customRadioButton = JRadioButton(BufferConfigBundle.message("custom"))
-        radioButtonPanel = JPanel(FlowLayout(FlowLayout.LEFT))
 
         val buttonGroup = ButtonGroup()
         buttonGroup.add(presetRadioButton)
         buttonGroup.add(customRadioButton)
 
-        customBufferSizePanel?.add(customBufferSizeField)
-        customBufferSizePanel?.add(JLabel(" MB"))
+        presetPanel.add(presetRadioButton)
+        presetPanel.add(bufferSizeComboBox)
 
-        radioButtonPanel?.add(presetRadioButton)
-        radioButtonPanel?.add(customRadioButton)
+        customPanel.add(customRadioButton)
+        customPanel.add(customBufferSizeField)
+        customPanel.add(JLabel(" MB"))
 
-        panel?.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
-        panel?.add(radioButtonPanel)
-        panel?.add(bufferSizeComboBox)
-        panel?.add(customBufferSizePanel)
+        panel?.add(presetPanel)
+        panel?.add(customPanel)
 
         val config = BufferConfigService.getInstance()
         bufferSizeComboBox?.selectedItem = formatBufferSize(config.maxBufferSize)
