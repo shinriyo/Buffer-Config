@@ -27,6 +27,11 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.shinriyo.bufferconfig.BufferConfigService"/>
         <projectConfigurable instance="com.shinriyo.bufferconfig.BufferConfigSettings"/>
+        <postStartupActivity implementation="com.shinriyo.bufferconfig.BufferConfigComponent"/>
+        <listeners>
+            <listener class="com.shinriyo.bufferconfig.BufferConfigComponent" topic="com.intellij.ide.ApplicationLoadListener"/>
+        </listeners>
+        <notificationGroup id="Buffer Config Notifications" displayType="BALLOON" />
     </extensions>
 
     <resource-bundle>com.shinriyo.bufferconfig.messages</resource-bundle>
