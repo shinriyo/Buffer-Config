@@ -3,11 +3,17 @@ package com.shinriyo.bufferconfig
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
 import javax.swing.*
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 
 class BufferConfigSettings : Configurable {
     private var panel: JPanel? = null
     private var bufferSizeComboBox: JComboBox<String>? = null
+    private var customBufferSizeField: JTextField? = null
+    private var presetRadioButton: JRadioButton? = null
+    private var customRadioButton: JRadioButton? = null
 
+    // 選べるメモリサイズ
     private val bufferSizes = arrayOf("1 MB", "2 MB", "5 MB", "10 MB", "20 MB")
 
     override fun getDisplayName(): String {
@@ -17,12 +23,35 @@ class BufferConfigSettings : Configurable {
     override fun createComponent(): JComponent? {
         panel = JPanel()
         bufferSizeComboBox = JComboBox(bufferSizes)
-        panel?.add(JLabel("Buffer Size:"))
+        customBufferSizeField = JTextField(10)
+        presetRadioButton = JRadioButton("Preset", true)
+        customRadioButton = JRadioButton("Custom")
+
+        val buttonGroup = ButtonGroup()
+        buttonGroup.add(presetRadioButton)
+        buttonGroup.add(customRadioButton)
+
+        panel?.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+        panel?.add(presetRadioButton)
         panel?.add(bufferSizeComboBox)
+        panel?.add(customRadioButton)
+        panel?.add(customBufferSizeField)
 
         // 現在の設定値を表示
         val config = BufferConfigService.getInstance()
         bufferSizeComboBox?.selectedItem = formatBufferSize(config.maxBufferSize)
+        customBufferSizeField?.text = config.maxBufferSize.toString()
+        customBufferSizeField?.isEnabled = false
+
+        presetRadioButton?.addActionListener {
+            bufferSizeComboBox?.isEnabled = true
+            customBufferSizeField?.isEnabled = false
+        }
+
+        customRadioButton?.addActionListener {
+            bufferSizeComboBox?.isEnabled = false
+            customBufferSizeField?.isEnabled = true
+        }
 
         return panel
     }
@@ -39,12 +68,20 @@ class BufferConfigSettings : Configurable {
 
     override fun isModified(): Boolean {
         val config = BufferConfigService.getInstance()
-        return bufferSizeComboBox?.selectedItem != formatBufferSize(config.maxBufferSize)
+        return if (presetRadioButton?.isSelected == true) {
+            bufferSizeComboBox?.selectedItem != formatBufferSize(config.maxBufferSize)
+        } else {
+            customBufferSizeField?.text?.toIntOrNull() != config.maxBufferSize
+        }
     }
 
     override fun apply() {
         val config = BufferConfigService.getInstance()
-        config.maxBufferSize = parseBufferSize(bufferSizeComboBox?.selectedItem as String)
+        if (presetRadioButton?.isSelected == true) {
+            config.maxBufferSize = parseBufferSize(bufferSizeComboBox?.selectedItem as String)
+        } else {
+            config.maxBufferSize = customBufferSizeField?.text?.toIntOrNull() ?: config.maxBufferSize
+        }
         config.applyBufferSize()
 
         // 設定完了メッセージを表示
@@ -55,5 +92,8 @@ class BufferConfigSettings : Configurable {
     override fun reset() {
         val config = BufferConfigService.getInstance()
         bufferSizeComboBox?.selectedItem = formatBufferSize(config.maxBufferSize)
+        customBufferSizeField?.text = config.maxBufferSize.toString()
+        customBufferSizeField?.isEnabled = customRadioButton?.isSelected == true
+        bufferSizeComboBox?.isEnabled = presetRadioButton?.isSelected == true
     }
 }
