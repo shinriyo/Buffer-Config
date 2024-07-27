@@ -4,6 +4,7 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.ProjectManager
 import javax.swing.*
 import java.awt.FlowLayout
+import java.awt.Dimension
 
 class BufferConfigSettings : Configurable {
     private var panel: JPanel? = null
@@ -42,7 +43,12 @@ class BufferConfigSettings : Configurable {
         customPanel.add(customBufferSizeField)
         customPanel.add(JLabel(" MB"))
 
+        // Adjust vertical gap between the panels
+        presetPanel.maximumSize = Dimension(Int.MAX_VALUE, presetPanel.preferredSize.height)
+        customPanel.maximumSize = Dimension(Int.MAX_VALUE, customPanel.preferredSize.height)
+
         panel?.add(presetPanel)
+        panel?.add(Box.createVerticalStrut(2))  // Adjust the vertical gap here
         panel?.add(customPanel)
 
         val config = BufferConfigService.getInstance()
