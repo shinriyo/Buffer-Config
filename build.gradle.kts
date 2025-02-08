@@ -44,4 +44,9 @@ tasks {
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
+
+    buildSearchableOptions {
+        enabled = false
+        jvmArgs = listOf("-Xmx512m")
+    }
 }
